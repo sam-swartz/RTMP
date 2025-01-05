@@ -1,197 +1,208 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JN Stream</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.10/hls.min.js"></script>
-    <style>
-        body {
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #1a1a1a;
-            color: #ffffff;
-            line-height: 1.6;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JN Stream</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.10/hls.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #1a1a1a;
+      color: #ffffff;
+      line-height: 1.6;
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
 
-        .header {
-            text-align: center;
-            padding: 20px 0;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #333;
-        }
+    .header {
+      text-align: center;
+      padding: 20px 0;
+      margin-bottom: 30px;
+      border-bottom: 2px solid #333;
+    }
 
-        .header h1 {
-            margin: 0;
-            color: #4CAF50;
-        }
+    .header h1 {
+      margin: 0;
+      color: #4CAF50;
+    }
 
-        .video-container {
-            width: 100%;
-            max-width: 960px;
-            margin: 0 auto;
-            background: #000;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        }
+    .video-container {
+      width: 100%;
+      max-width: 960px;
+      margin: 0 auto;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
 
-        #videoPlayer {
-            width: 100%;
-            aspect-ratio: 16/9;
-            background: #000;
-        }
+    #videoPlayer {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: #000;
+    }
 
-        .status-container {
-            margin-top: 20px;
-            padding: 15px;
-            background: #2d2d2d;
-            border-radius: 8px;
-        }
+    .status-container {
+      margin-top: 20px;
+      padding: 15px;
+      background: #2d2d2d;
+      border-radius: 8px;
+    }
 
-        .status {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
+    .status {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
 
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
-        .status-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #666;
-        }
+    .status-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #666;
+    }
 
-        .status-dot.online {
-            background: #4CAF50;
-            animation: pulse 2s infinite;
-        }
+    .status-dot.online {
+      background: #4CAF50;
+      animation: pulse 2s infinite;
+    }
 
-        .info-box {
-            margin-top: 20px;
-            padding: 15px;
-            background: #2d2d2d;
-            border-radius: 8px;
-        }
+    .info-box {
+      margin-top: 20px;
+      padding: 15px;
+      background: #2d2d2d;
+      border-radius: 8px;
+    }
 
-        .info-box h3 {
-            margin-top: 0;
-            color: #4CAF50;
-        }
+    .info-box h3 {
+      margin-top: 0;
+      color: #4CAF50;
+    }
 
-        @keyframes pulse {
-            0% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.5;
-            }
-            100% {
-                opacity: 1;
-            }
-        }
+    @keyframes pulse {
+      0% {
+        opacity: 1;
+      }
 
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .header {
-                padding: 10px 0;
-            }
-        }
-    </style>
+      50% {
+        opacity: 0.5;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 10px;
+      }
+
+      .header {
+        padding: 10px 0;
+      }
+    }
+  </style>
 </head>
+
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>JN Stream</h1>
-        </div>
-
-        <div class="video-container">
-            <video id="videoPlayer" controls playsinline></video>
-        </div>
-
-        <div class="status-container">
-            <div class="status">
-                <div class="status-indicator">
-                    <div id="statusDot" class="status-dot"></div>
-                    <span id="statusText">Checking stream status...</span>
-                </div>
-                <div id="viewerCount">Viewers: --</div>
-            </div>
-        </div>
-
-        <div class="info-box">
-            <h3>Stream Information</h3>
-            <p>Stream URL: rtmp://[your-server]/live</p>
-            <p>Stream Key: [Contact administrator]</p>
-            <p>Supported Players: VLC, OBS, or any HLS compatible player</p>
-        </div>
+  <div class="container">
+    <div class="header">
+      <h1>JN Stream</h1>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const video = document.getElementById('videoPlayer');
-            const statusDot = document.getElementById('statusDot');
-            const statusText = document.getElementById('statusText');
-            
-            if (Hls.isSupported()) {
-                const hls = new Hls();
-                const hlsUrl = 'http://cyberpi.swartz.cloud:8080/hls/jn.m3u8';  // Make sure this uses http://
+    <div class="video-container">
+      <video id="videoPlayer" controls playsinline></video>
+    </div>
 
-                hls.loadSource(hlsUrl);
-                hls.attachMedia(video);
+    <div class="status-container">
+      <div class="status">
+        <div class="status-indicator">
+          <div id="statusDot" class="status-dot"></div>
+          <span id="statusText">Checking stream status...</span>
+        </div>
+        <div id="viewerCount">Viewers: --</div>
+      </div>
+    </div>
 
-                hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                    video.play();
-                });
+    <div class="info-box">
+      <h3>Stream Information</h3>
+      <p>Stream URL: rtmp://[your-server]/live</p>
+      <p>Stream Key: [Contact administrator]</p>
+      <p>Supported Players: VLC, OBS, or any HLS compatible player</p>
+    </div>
+  </div>
 
-                hls.on(Hls.Events.ERROR, function(event, data) {
-                    if (data.fatal) {
-                        statusDot.classList.remove('online');
-                        statusText.textContent = 'Stream Offline';
-                    }
-                });
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const video = document.getElementById('videoPlayer');
+      const statusDot = document.getElementById('statusDot');
+      const statusText = document.getElementById('statusText');
 
-                // Check stream status periodically
-                function checkStreamStatus() {
-                    fetch(hlsUrl)
-                        .then(response => {
-                            if (response.ok) {
-                                statusDot.classList.add('online');
-                                statusText.textContent = 'Stream Online';
-                            } else {
-                                statusDot.classList.remove('online');
-                                statusText.textContent = 'Stream Offline';
-                            }
-                        })
-                        .catch(() => {
-                            statusDot.classList.remove('online');
-                            statusText.textContent = 'Stream Offline';
-                        });
-                }
+      if (Hls.isSupported()) {
+        const hls = new Hls();
+        const hlsUrl = 'http://cyberpi.swartz.cloud:8080/hls/jn.m3u8';  // Make sure this uses http://
 
-                // Check status every 10 seconds
-                checkStreamStatus();
-                setInterval(checkStreamStatus, 10000);
-            } else {
-                statusText.textContent = 'HLS not supported in this browser';
-            }
+        hls.loadSource(hlsUrl);
+        hls.attachMedia(video);
+
+        hls.on(Hls.Events.MANIFEST_PARSED, function () {
+          video.play();
         });
-    </script>
+
+        hls.on(Hls.Events.ERROR, function (event, data) {
+          if (data.fatal) {
+            statusDot.classList.remove('online');
+            statusText.textContent = 'Stream Offline';
+          }
+        });
+
+        // Check stream status periodically
+        function checkStreamStatus() {
+          fetch('/hls/jn.m3u8')
+            .then(response => {
+              if (response.ok) {
+                statusDot.classList.add('online');
+                statusText.textContent = 'Stream Online';
+              } else {
+                statusDot.classList.remove('online');
+                statusText.textContent = 'Waiting for stream...';
+                // Retry loading the player
+                setTimeout(() => {
+                  if (hls) {
+                    hls.loadSource('/hls/jn.m3u8');
+                  }
+                }, 5000);
+              }
+            })
+            .catch(() => {
+              statusDot.classList.remove('online');
+              statusText.textContent = 'Waiting for stream...';
+            });
+        }
+
+        // Check status every 10 seconds
+        checkStreamStatus();
+        setInterval(checkStreamStatus, 10000);
+      } else {
+        statusText.textContent = 'HLS not supported in this browser';
+      }
+    });
+  </script>
 </body>
+
 </html>
