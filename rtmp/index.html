@@ -6,40 +6,132 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Live Stream</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    #video {
+      max-width: 100%;
+      background: #000;
+    }
+
+    #status {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 4px;
+      display: none;
+    }
+
+    .error {
+      background: #ffe6e6;
+      color: #cc0000;
+    }
+
+    .info {
+      background: #e6f3ff;
+      color: #004d99;
+      padding: 20px 16px;
+    }
+  </style>
 </head>
 
 <body>
   <h2>Live Stream</h2>
+  <div id="status"></div>
   <video id="video" width="800" controls></video>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
-    var video = document.getElementById("video");
-    var videoSrc = "/hls/jn.m3u8";  // Changed from test to jn
-    if (Hls.isSupported()) {
-      var hls = new Hls({
-        debug: true,  // Enable debugging for troubleshooting
-        enableWorker: true,
-        lowLatencyMode: true
-      });
+    const video = document.getElementById("video");
+    const status = document.getElementById("status");
+    const videoSrc = "/hls/jn.m3u8";
 
-      hls.loadSource(videoSrc);
-      hls.attachMedia(video);
-
-      hls.on(Hls.Events.MANIFEST_PARSED, function () {
-        video.play();
-      });
-
-      // Add error logging
-      hls.on(Hls.Events.ERROR, function (event, data) {
-        console.error('HLS error:', data);
-      });
+    function showStatus(message, type = 'info') {
+      status.textContent = message;
+      status.className = type;
+      status.style.display = 'block';
     }
-    else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-      video.src = videoSrc;
-      video.addEventListener('loadedmetadata', function () {
-        video.play();
-      });
+
+    function initPlayer() {
+      if (Hls.isSupported()) {
+        const hls = new Hls({
+          debug: true,
+          enableWorker: true,
+          lowLatencyMode: true,
+          backBufferLength: 90
+        });
+
+        hls.loadSource(videoSrc);
+        hls.attachMedia(video);
+
+        hls.on(Hls.Events.MANIFEST_PARSED, function () {
+          showStatus('Stream loaded, starting playback...');
+          video.play().catch(e => {
+            showStatus('Autoplay prevented: ' + e.message, 'error');
+          });
+        });
+
+        hls.on(Hls.Events.ERROR, function (event, data) {
+          if (data.fatal) {
+            switch (data.type) {
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                showStatus('Network error, attempting to recover...', 'error');
+                hls.startLoad();
+                break;
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                showStatus('Media error, attempting to recover...', 'error');
+                hls.recoverMediaError();
+                break;
+              default:
+                showStatus('Fatal error: ' + data.details, 'error');
+                console.error('Fatal error:', data);
+                break;
+            }
+          }
+        });
+
+        // Monitor buffer state
+        hls.on(Hls.Events.BUFFER_APPENDED, function () {
+          if (video.buffered.length) {
+            const buffered = video.buffered.end(0) - video.buffered.start(0);
+            if (buffered < 2) {
+              showStatus('Low buffer - possible network issues');
+            }
+          }
+        });
+
+      } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+        // For Safari
+        video.src = videoSrc;
+        video.addEventListener('loadedmetadata', function () {
+          video.play().catch(e => {
+            showStatus('Autoplay prevented: ' + e.message, 'error');
+          });
+        });
+      } else {
+        showStatus('HLS playback is not supported in your browser.', 'error');
+      }
     }
+
+    // Add retry logic
+    let retryCount = 0;
+    const maxRetries = 3;
+
+    function attemptConnection() {
+      if (retryCount < maxRetries) {
+        showStatus(`Attempting to connect (attempt ${retryCount + 1}/${maxRetries})...`);
+        initPlayer();
+        retryCount++;
+      } else {
+        showStatus('Maximum retry attempts reached. Please refresh the page to try again.', 'error');
+      }
+    }
+
+    // Start the player
+    attemptConnection();
   </script>
 </body>
 
