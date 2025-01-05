@@ -9,6 +9,8 @@ services:
     volumes:
       - ./data:/tmp/hls
     restart: unless-stopped
+    depends_on:
+      - auth
 
   auth:
     build: ./auth
@@ -16,3 +18,8 @@ services:
       - "0.0.0.0:8000:8000"
     container_name: auth_server
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
