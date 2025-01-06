@@ -4,6 +4,7 @@ services:
     build: ./rtmp
     ports:
       - "0.0.0.0:1935:1935"
+      - "0.0.0.0:80:80"
       - "0.0.0.0:8080:8080"
     container_name: rtmp_server
     volumes:
