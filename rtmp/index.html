@@ -155,7 +155,7 @@
 
       if (Hls.isSupported()) {
         const hls = new Hls();
-        const hlsUrl = 'http://linux.swartz.cloud:8080/hls/jn.m3u8';  // Make sure this uses http://
+        const hlsUrl = 'http://linux.swartz.cloud:8080/hls/swartz.m3u8';  // Make sure this uses http://
 
         hls.loadSource(hlsUrl);
         hls.attachMedia(video);
@@ -173,7 +173,7 @@
 
         // Check stream status periodically
         function checkStreamStatus() {
-          fetch('/hls/jn.m3u8')
+          fetch('/hls/swartz.m3u8')
             .then(response => {
               if (response.ok) {
                 statusDot.classList.add('online');
@@ -184,7 +184,7 @@
                 // Retry loading the player
                 setTimeout(() => {
                   if (hls) {
-                    hls.loadSource('/hls/jn.m3u8');
+                    hls.loadSource('/hls/swartz.m3u8');
                   }
                 }, 5000);
               }
